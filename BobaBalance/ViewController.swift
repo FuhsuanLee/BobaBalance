@@ -106,38 +106,42 @@ class ViewController: UIViewController {
     func updateSummary() {
         let totalCalories = records.reduce(0) { $0 + $1.calories }
         let totalCaffeine = records.reduce(0) { $0 + $1.caffeine }
-        
+
         totalCaloriesLabel.text = "\(totalCalories) kcal"
         totalCaffeineLabel.text = "\(totalCaffeine) mg"
         drinkCountLabel.text = "\(records.count) 杯"
-        
-        let text = DrinkDataManager.getHealthAdvice(
-            totalCalories: totalCalories,
-            totalCaffeine: totalCaffeine,
-            count: records.count
-        )
-        
-        // 熱量提醒
-        if totalCalories > 1500 {
-            totalCaloriesLabel.textColor = .systemRed
-        } else {
-            totalCaloriesLabel.textColor = .label
-        }
-        
-        // 咖啡因提醒
-        if totalCaffeine > 400 {
-            totalCaffeineLabel.textColor = .systemRed
-        } else {
-            totalCaffeineLabel.textColor = .label
-        }
-        
-        if totalCalories > 1500 || totalCaffeine > 400 || records.count >= 5 {
+
+        let isWarning = totalCalories > 1500 || totalCaffeine > 400 || records.count >= 5
+
+        if isWarning {
             adviceCardView.backgroundColor = UIColor.systemRed.withAlphaComponent(0.1)
             healthAdviceLabel.textColor = .systemRed
         } else {
             adviceCardView.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.1)
             healthAdviceLabel.textColor = .systemGreen
         }
+
+        totalCaloriesLabel.textColor = totalCalories > 1500 ? .systemRed : .label
+        totalCaffeineLabel.textColor = totalCaffeine > 400 ? .systemRed : .label
+
+        let text = DrinkDataManager.getHealthAdvice(
+            totalCalories: totalCalories,
+            totalCaffeine: totalCaffeine,
+            count: records.count
+        )
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 6
+
+        let attributedString = NSAttributedString(
+            string: text,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                .foregroundColor: healthAdviceLabel.textColor ?? UIColor.label
+            ]
+        )
+
+        healthAdviceLabel.attributedText = attributedString
     }
     
     func setupCardView(_ view: UIView) {
