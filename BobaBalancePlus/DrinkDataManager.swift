@@ -9,14 +9,83 @@ import Foundation
 
 class DrinkDataManager {
     
-    static let drinks = [
-        "珍珠奶茶",
-        "紅茶",
-        "綠茶",
-        "烏龍茶",
-        "水果茶",
-        "拿鐵"
+    static let drinkItems: [DrinkItem] = [
+        DrinkItem(
+            brand: "五十嵐",
+            name: "珍珠奶茶",
+            category: "奶茶",
+            baseCalories: 500,
+            caffeine: 80
+        ),
+        DrinkItem(
+            brand: "五十嵐",
+            name: "四季春青茶",
+            category: "茶類",
+            baseCalories: 160,
+            caffeine: 55
+        ),
+        DrinkItem(
+            brand: "五十嵐",
+            name: "阿薩姆紅茶",
+            category: "茶類",
+            baseCalories: 180,
+            caffeine: 70
+        ),
+        DrinkItem(
+            brand: "五十嵐",
+            name: "波霸奶茶",
+            category: "奶茶",
+            baseCalories: 520,
+            caffeine: 85
+        ),
+        DrinkItem(
+            brand: "五十嵐",
+            name: "檸檬綠茶",
+            category: "果茶",
+            baseCalories: 260,
+            caffeine: 50
+        ),
+        
+        DrinkItem(
+            brand: "可不可",
+            name: "熟成紅茶",
+            category: "茶類",
+            baseCalories: 170,
+            caffeine: 75
+        ),
+        DrinkItem(
+            brand: "可不可",
+            name: "白玉歐蕾",
+            category: "奶茶",
+            baseCalories: 480,
+            caffeine: 65
+        ),
+        DrinkItem(
+            brand: "可不可",
+            name: "胭脂紅茶",
+            category: "茶類",
+            baseCalories: 160,
+            caffeine: 70
+        ),
+        DrinkItem(
+            brand: "可不可",
+            name: "雪藏紅茶",
+            category: "奶茶",
+            baseCalories: 430,
+            caffeine: 75
+        ),
+        DrinkItem(
+            brand: "可不可",
+            name: "春芽綠茶",
+            category: "茶類",
+            baseCalories: 150,
+            caffeine: 50
+        )
     ]
+    
+    static var drinks: [String] {
+        drinkItems.map { $0.name }
+    }
     
     static let sugarLevels = [
         "無糖",
@@ -60,6 +129,29 @@ class DrinkDataManager {
         default:
             return baseCalories
         }
+    }
+    
+    static func calculateCalories(drinkItem: DrinkItem, sugar: String) -> Int {
+        let baseCalories = drinkItem.baseCalories
+        
+        switch sugar {
+        case "無糖":
+            return Int(Double(baseCalories) * 0.45)
+        case "微糖":
+            return Int(Double(baseCalories) * 0.6)
+        case "半糖":
+            return Int(Double(baseCalories) * 0.75)
+        case "少糖":
+            return Int(Double(baseCalories) * 0.9)
+        case "全糖":
+            return baseCalories
+        default:
+            return baseCalories
+        }
+    }
+
+    static func calculateCaffeine(drinkItem: DrinkItem) -> Int {
+        drinkItem.caffeine
     }
     
     static func calculateCaffeine(drink: String) -> Int {
@@ -118,5 +210,13 @@ class DrinkDataManager {
         }
         
         return advices.joined(separator: "\n\n")
+    }
+    
+    static var brands: [String] {
+        Array(Set(drinkItems.map { $0.brand })).sorted()
+    }
+
+    static func drinkItems(for brand: String) -> [DrinkItem] {
+        drinkItems.filter { $0.brand == brand }
     }
 }

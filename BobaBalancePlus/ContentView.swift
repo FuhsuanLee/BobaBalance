@@ -20,8 +20,8 @@ extension Color {
 }
 
 struct ContentView: View {
-    
-    @State private var selectedDrink = DrinkDataManager.drinks[0]
+    @State private var selectedBrand = DrinkDataManager.brands[0]
+    @State private var selectedDrinkItem = DrinkDataManager.drinkItems(for: DrinkDataManager.brands[0])[0]
     @State private var selectedSugar = DrinkDataManager.sugarLevels[2]
     @State private var records: [DrinkRecord] = []
     @State private var showClearAlert = false
@@ -86,12 +86,26 @@ struct ContentView: View {
                 .font(.title2)
                 .bold()
             
+            Text("選擇品牌")
+                .font(.headline)
+
+            Picker("選擇品牌", selection: $selectedBrand) {
+                ForEach(DrinkDataManager.brands, id: \.self) { brand in
+                    Text(brand).tag(brand)
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(Color.bobaBrown)
+            .onChange(of: selectedBrand) { newBrand in
+                selectedDrinkItem = DrinkDataManager.drinkItems(for: newBrand)[0]
+            }
+            
             Text("選擇飲料")
                 .font(.headline)
-            
-            Picker("選擇飲料", selection: $selectedDrink) {
-                ForEach(DrinkDataManager.drinks, id: \.self) { drink in
-                    Text(drink).tag(drink)
+
+            Picker("選擇飲料", selection: $selectedDrinkItem) {
+                ForEach(DrinkDataManager.drinkItems(for: selectedBrand)) { item in
+                    Text(item.name).tag(item)
                 }
             }
             .pickerStyle(.menu)
@@ -195,7 +209,7 @@ struct ContentView: View {
             .lineSpacing(6)
             .foregroundStyle(isWarning ? Color.bobaRedText : Color.bobaGreenText)
         }
-        .frame(maxWidth: .infinity, alignment: .leading) // 
+        .frame(maxWidth: .infinity, alignment: .leading) //
         .bobaCardStyle(
             background: isWarning ? .bobaRedBackground : .bobaGreenBackground
         )
@@ -253,16 +267,16 @@ struct ContentView: View {
     
     private func addDrink() {
         let calories = DrinkDataManager.calculateCalories(
-            drink: selectedDrink,
+            drinkItem: selectedDrinkItem,
             sugar: selectedSugar
         )
-        
+
         let caffeine = DrinkDataManager.calculateCaffeine(
-            drink: selectedDrink
+            drinkItem: selectedDrinkItem
         )
-        
+
         let record = DrinkRecord(
-            name: selectedDrink,
+            name: selectedDrinkItem.name,
             sugarLevel: selectedSugar,
             calories: calories,
             caffeine: caffeine,
