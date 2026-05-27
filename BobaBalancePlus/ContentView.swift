@@ -59,6 +59,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(spacing: 18) {
                     headerView
+                    drinkBasketCard
                     addDrinkCard
                     summaryCard
                     adviceCard
@@ -304,6 +305,10 @@ struct ContentView: View {
         .padding()
         .background(Color.bobaMiniCard.opacity(0.75))
         .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+    
+    private var drinkBasketCard: some View {
+        DrinkBasketView(records: records)
     }
     
     private var recordNavigationCard: some View {
