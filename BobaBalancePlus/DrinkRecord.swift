@@ -9,6 +9,7 @@ import Foundation
 
 struct DrinkRecord: Identifiable, Codable {
     let id: UUID
+    let brand: String
     let name: String
     let sugarLevel: String
     let calories: Int
@@ -17,6 +18,7 @@ struct DrinkRecord: Identifiable, Codable {
     
     init(
         id: UUID = UUID(),
+        brand: String,
         name: String,
         sugarLevel: String,
         calories: Int,
@@ -24,6 +26,7 @@ struct DrinkRecord: Identifiable, Codable {
         date: Date
     ) {
         self.id = id
+        self.brand = brand
         self.name = name
         self.sugarLevel = sugarLevel
         self.calories = calories

@@ -10,26 +10,14 @@ import Foundation
 class DrinkDataManager {
     
     static let drinkItems: [DrinkItem] = [
+        
+        // MARK: - 五十嵐
         DrinkItem(
             brand: "五十嵐",
             name: "珍珠奶茶",
             category: "奶茶",
             baseCalories: 500,
             caffeine: 80
-        ),
-        DrinkItem(
-            brand: "五十嵐",
-            name: "四季春青茶",
-            category: "茶類",
-            baseCalories: 160,
-            caffeine: 55
-        ),
-        DrinkItem(
-            brand: "五十嵐",
-            name: "阿薩姆紅茶",
-            category: "茶類",
-            baseCalories: 180,
-            caffeine: 70
         ),
         DrinkItem(
             brand: "五十嵐",
@@ -40,12 +28,27 @@ class DrinkDataManager {
         ),
         DrinkItem(
             brand: "五十嵐",
+            name: "阿薩姆紅茶",
+            category: "茶類",
+            baseCalories: 180,
+            caffeine: 70
+        ),
+        DrinkItem(
+            brand: "五十嵐",
+            name: "四季春青茶",
+            category: "茶類",
+            baseCalories: 160,
+            caffeine: 55
+        ),
+        DrinkItem(
+            brand: "五十嵐",
             name: "檸檬綠茶",
             category: "果茶",
             baseCalories: 260,
             caffeine: 50
         ),
         
+        // MARK: - 可不可
         DrinkItem(
             brand: "可不可",
             name: "熟成紅茶",
@@ -55,10 +58,10 @@ class DrinkDataManager {
         ),
         DrinkItem(
             brand: "可不可",
-            name: "白玉歐蕾",
-            category: "奶茶",
-            baseCalories: 480,
-            caffeine: 65
+            name: "春芽綠茶",
+            category: "茶類",
+            baseCalories: 150,
+            caffeine: 50
         ),
         DrinkItem(
             brand: "可不可",
@@ -69,17 +72,128 @@ class DrinkDataManager {
         ),
         DrinkItem(
             brand: "可不可",
+            name: "白玉歐蕾",
+            category: "奶茶",
+            baseCalories: 480,
+            caffeine: 65
+        ),
+        DrinkItem(
+            brand: "可不可",
             name: "雪藏紅茶",
             category: "奶茶",
             baseCalories: 430,
             caffeine: 75
         ),
+        
+        // MARK: - 麻古茶坊
         DrinkItem(
-            brand: "可不可",
-            name: "春芽綠茶",
+            brand: "麻古茶坊",
+            name: "高山金萱茶",
+            category: "茶類",
+            baseCalories: 150,
+            caffeine: 55
+        ),
+        DrinkItem(
+            brand: "麻古茶坊",
+            name: "翡翠綠茶",
+            category: "茶類",
+            baseCalories: 160,
+            caffeine: 50
+        ),
+        DrinkItem(
+            brand: "麻古茶坊",
+            name: "柳橙果粒茶",
+            category: "果茶",
+            baseCalories: 360,
+            caffeine: 45
+        ),
+        DrinkItem(
+            brand: "麻古茶坊",
+            name: "芝芝金萱",
+            category: "奶蓋",
+            baseCalories: 420,
+            caffeine: 55
+        ),
+        DrinkItem(
+            brand: "麻古茶坊",
+            name: "珍珠奶茶",
+            category: "奶茶",
+            baseCalories: 510,
+            caffeine: 80
+        ),
+        
+        // MARK: - 迷客夏
+        DrinkItem(
+            brand: "迷客夏",
+            name: "伯爵紅茶拿鐵",
+            category: "鮮奶茶",
+            baseCalories: 360,
+            caffeine: 75
+        ),
+        DrinkItem(
+            brand: "迷客夏",
+            name: "珍珠紅茶拿鐵",
+            category: "鮮奶茶",
+            baseCalories: 520,
+            caffeine: 75
+        ),
+        DrinkItem(
+            brand: "迷客夏",
+            name: "綠光牧場鮮奶茶",
+            category: "鮮奶茶",
+            baseCalories: 390,
+            caffeine: 60
+        ),
+        DrinkItem(
+            brand: "迷客夏",
+            name: "大正紅茶",
+            category: "茶類",
+            baseCalories: 170,
+            caffeine: 70
+        ),
+        DrinkItem(
+            brand: "迷客夏",
+            name: "茉香綠茶",
             category: "茶類",
             baseCalories: 150,
             caffeine: 50
+        ),
+        
+        // MARK: - 清心福全
+        DrinkItem(
+            brand: "清心福全",
+            name: "錫蘭紅茶",
+            category: "茶類",
+            baseCalories: 170,
+            caffeine: 70
+        ),
+        DrinkItem(
+            brand: "清心福全",
+            name: "特級綠茶",
+            category: "茶類",
+            baseCalories: 150,
+            caffeine: 50
+        ),
+        DrinkItem(
+            brand: "清心福全",
+            name: "烏龍綠茶",
+            category: "茶類",
+            baseCalories: 150,
+            caffeine: 55
+        ),
+        DrinkItem(
+            brand: "清心福全",
+            name: "珍珠奶茶",
+            category: "奶茶",
+            baseCalories: 500,
+            caffeine: 80
+        ),
+        DrinkItem(
+            brand: "清心福全",
+            name: "蜂蜜檸檬",
+            category: "果茶",
+            baseCalories: 320,
+            caffeine: 0
         )
     ]
     
@@ -218,5 +332,20 @@ class DrinkDataManager {
 
     static func drinkItems(for brand: String) -> [DrinkItem] {
         drinkItems.filter { $0.brand == brand }
+    }
+    
+    static func categories(for brand: String) -> [String] {
+        let categories = drinkItems(for: brand).map { $0.category }
+        return ["全部"] + Array(Set(categories)).sorted()
+    }
+
+    static func drinkItems(for brand: String, category: String) -> [DrinkItem] {
+        let items = drinkItems(for: brand)
+        
+        if category == "全部" {
+            return items
+        }
+        
+        return items.filter { $0.category == category }
     }
 }

@@ -22,9 +22,9 @@ extension Color {
 struct ContentView: View {
     @State private var selectedBrand = DrinkDataManager.brands[0]
     @State private var selectedDrinkItem = DrinkDataManager.drinkItems(for: DrinkDataManager.brands[0])[0]
+    @State private var selectedCategory = "全部"
     @State private var selectedSugar = DrinkDataManager.sugarLevels[2]
     @State private var records: [DrinkRecord] = []
-    @State private var showClearAlert = false
     
     private let storageKey = "drinkRecords"
     
@@ -48,21 +48,13 @@ struct ContentView: View {
                     addDrinkCard
                     summaryCard
                     adviceCard
-                    recordsCard
+                    recordNavigationCard
                 }
                 .padding(.horizontal, 18)
                 .padding(.bottom, 30)
             }
             .background(Color.bobaBackground.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
-            .alert("確定要清除嗎？", isPresented: $showClearAlert) {
-                Button("取消", role: .cancel) { }
-                Button("清除", role: .destructive) {
-                    clearAllRecords()
-                }
-            } message: {
-                Text("此動作會刪除所有飲料紀錄，且無法復原。")
-            }
         }
     }
     
@@ -97,14 +89,39 @@ struct ContentView: View {
             .pickerStyle(.menu)
             .tint(Color.bobaBrown)
             .onChange(of: selectedBrand) { newBrand in
-                selectedDrinkItem = DrinkDataManager.drinkItems(for: newBrand)[0]
+                selectedCategory = "全部"
+                
+                if let firstItem = DrinkDataManager.drinkItems(for: newBrand).first {
+                    selectedDrinkItem = firstItem
+                }
+            }
+            
+            Text("選擇分類")
+                .font(.headline)
+
+            Picker("選擇分類", selection: $selectedCategory) {
+                ForEach(DrinkDataManager.categories(for: selectedBrand), id: \.self) { category in
+                    Text(category).tag(category)
+                }
+            }
+            .pickerStyle(.segmented)
+            .tint(Color.bobaBrown)
+            .onChange(of: selectedCategory) { newCategory in
+                let items = DrinkDataManager.drinkItems(
+                    for: selectedBrand,
+                    category: newCategory
+                )
+                
+                if let firstItem = items.first {
+                    selectedDrinkItem = firstItem
+                }
             }
             
             Text("選擇飲料")
                 .font(.headline)
 
             Picker("選擇飲料", selection: $selectedDrinkItem) {
-                ForEach(DrinkDataManager.drinkItems(for: selectedBrand)) { item in
+                ForEach(DrinkDataManager.drinkItems(for: selectedBrand, category: selectedCategory)) { item in
                     Text(item.name).tag(item)
                 }
             }
@@ -215,53 +232,34 @@ struct ContentView: View {
         )
     }
     
-    private var recordsCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("飲料紀錄")
-                .font(.title2)
-                .bold()
+    private var recordNavigationCard: some View {
+        NavigationLink {
+            RecordListView(
+                records: $records,
+                onRecordsChanged: saveRecords
+            )
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("飲料紀錄")
+                        .font(.title2)
+                        .bold()
+                        .foregroundStyle(.black)
 
-            if records.isEmpty {
-                Text("目前還沒有紀錄")
-                    .font(.headline)
-                    .foregroundStyle(.gray)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 30)
-            } else {
-                ForEach(records) { record in
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("\(record.name)｜\(record.sugarLevel)")
-                            .font(.title3)
-                            .bold()
-                            .foregroundStyle(.black)
-
-                        Text("\(record.calories) kcal｜咖啡因 \(record.caffeine) mg｜\(formatDate(record.date))")
-                            .font(.headline)
-                            .foregroundStyle(.gray)
-
-                        Divider()
-                    }
-                    .padding(.vertical, 8)
+                    Text("目前共有 \(records.count) 筆紀錄")
+                        .font(.headline)
+                        .foregroundStyle(.gray)
                 }
 
-                Button(role: .destructive) {
-                    showClearAlert = true
-                } label: {
-                    HStack {
-                        Image(systemName: "trash")
-                        Text("清除所有紀錄")
-                    }
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .foregroundStyle(Color.bobaRedText)
-                    .background(Color.bobaRedBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                }
-                .padding(.top, 8)
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.title3)
+                    .foregroundStyle(Color.bobaBrown)
             }
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .buttonStyle(.plain)
         .bobaCardStyle()
     }
     
@@ -276,6 +274,7 @@ struct ContentView: View {
         )
 
         let record = DrinkRecord(
+            brand: selectedDrinkItem.brand,
             name: selectedDrinkItem.name,
             sugarLevel: selectedSugar,
             calories: calories,
@@ -331,6 +330,71 @@ extension View {
                     .stroke(Color.bobaBorder.opacity(0.65), lineWidth: 1)
             )
             .shadow(color: .brown.opacity(0.08), radius: 8, x: 0, y: 4)
+    }
+}
+
+struct RecordListView: View {
+    @Binding var records: [DrinkRecord]
+    let onRecordsChanged: () -> Void
+
+    @State private var showClearAlert = false
+
+    var body: some View {
+        List {
+            if records.isEmpty {
+                Text("目前還沒有紀錄")
+                    .foregroundStyle(.gray)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 30)
+            } else {
+                ForEach(records) { record in
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("\(record.brand)｜\(record.name)｜\(record.sugarLevel)")
+                            .font(.headline)
+
+                        Text("\(record.calories) kcal｜咖啡因 \(record.caffeine) mg｜\(formatDate(record.date))")
+                            .font(.subheadline)
+                            .foregroundStyle(.gray)
+                    }
+                    .padding(.vertical, 6)
+                }
+                .onDelete(perform: deleteRecords)
+            }
+        }
+        .navigationTitle("飲料紀錄")
+        .toolbar {
+            if !records.isEmpty {
+                Button(role: .destructive) {
+                    showClearAlert = true
+                } label: {
+                    Image(systemName: "trash")
+                }
+            }
+        }
+        .alert("確定要清除嗎？", isPresented: $showClearAlert) {
+            Button("取消", role: .cancel) { }
+            Button("清除", role: .destructive) {
+                clearAllRecords()
+            }
+        } message: {
+            Text("此動作會刪除所有飲料紀錄，且無法復原。")
+        }
+    }
+
+    private func deleteRecords(at offsets: IndexSet) {
+        records.remove(atOffsets: offsets)
+        onRecordsChanged()
+    }
+
+    private func clearAllRecords() {
+        records.removeAll()
+        onRecordsChanged()
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd HH:mm"
+        return formatter.string(from: date)
     }
 }
 
